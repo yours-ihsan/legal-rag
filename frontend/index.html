@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verifiable Legal Assistant</title>
+<style>
+:root{--blue:#1e3a8a;--acc:#2563eb;--ok:#059669;--bad:#dc2626;--bg:#f4f6fb;--tx:#1f2937}
+*{box-sizing:border-box}body{margin:0;font-family:Calibri,Segoe UI,sans-serif;background:var(--bg);color:var(--tx)}
+header{background:var(--blue);color:#fff;padding:14px 24px}header h1{margin:0;font-size:20px}header small{opacity:.8}
+main{display:grid;grid-template-columns:1fr 380px;gap:16px;padding:16px 24px;max-width:1200px;margin:auto}
+@media(max-width:850px){main{grid-template-columns:1fr}}
+.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 1px 3px #0002}
+form{display:flex;gap:8px;flex-wrap:wrap}input[type=text]{flex:1;min-width:200px;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:16px}
+select,button{padding:10px 14px;border-radius:8px;border:1px solid #cbd5e1;font-size:15px}
+button{background:var(--acc);color:#fff;border:none;cursor:pointer}button:disabled{opacity:.6}
+.claim{padding:8px 0;border-bottom:1px solid #eef}.cite{display:inline-block;background:#dbeafe;color:var(--blue);border:none;border-radius:6px;padding:1px 7px;margin-left:6px;cursor:pointer;font-size:13px}
+.notfound{background:#fff7ed;border-left:4px solid #f59e0b;padding:10px;border-radius:6px}
+.rej{color:var(--bad);font-size:14px;margin:4px 0}.muted{color:#64748b;font-size:13px}
+#panel h3{margin:0 0 6px}#src{white-space:pre-wrap;font-size:14px;line-height:1.5}
+.hl{outline:2px solid var(--ok)}.badge{font-size:12px;color:var(--ok);font-weight:bold}
+</style></head><body>
+<header><h1>Verifiable Legal Assistant</h1><small>Every claim is cited and checked against its source</small></header>
+<main>
+ <section class="card">
+  <form id="f"><input id="q" type="text" placeholder="Ask a question about the documents..." required>
+   <select id="v"><option value="full">Our system (verified)</option><option value="baseline">Baseline (plain RAG)</option></select>
+   <button id="go">Ask</button></form>
+  <div id="out" style="margin-top:14px"></div>
+ </section>
+ <aside class="card" id="panel"><h3>Source</h3><div class="muted" id="meta">Click a citation [n] to see the exact source text.</div><div id="src"></div></aside>
+</main>
+<script>
+const $=id=>document.getElementById(id);let sources={};
+$("f").onsubmit=async e=>{e.preventDefault();$("go").disabled=true;$("out").textContent="Thinking...";
+ try{const r=await fetch("/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:$("q").value,variant:$("v").value})});
+  if(!r.ok)throw new Error((await r.json()).detail);render(await r.json());}
+ catch(err){$("out").textContent="Error: "+err.message}finally{$("go").disabled=false}};
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function show(id){const s=sources[id];if(!s)return;$("meta").textContent=s.doc+" | page "+s.page+" | id: "+s.id;$("src").textContent=s.text}
+function render(d){const out=$("out");out.textContent="";sources={};d.sources.forEach(s=>sources[s.id]=s);
+ const nums={};let n=0;
+ if(d.abstained){out.append(el("div","notfound",d.message||"Not found in the provided sources."))}
+ d.claims.forEach(c=>{const row=el("div","claim");row.append(el("span","",c.text));
+  if(!(c.source in nums))nums[c.source]=++n;const b=el("button","cite","["+nums[c.source]+"]");
+  b.type="button";b.onclick=()=>show(c.source);row.append(b);
+  if(!sources[c.source])row.append(el("span","rej"," (citation not in retrieved sources!)"));out.append(row)});
+ if(d.rejected.length){const det=el("details");det.append(el("summary","muted","Removed by verifier ("+d.rejected.length+")"));
+  d.rejected.forEach(r=>det.append(el("div","rej","x "+r.text+"  ("+r.reason+")")));out.append(det)}
+ if(d.claims.length)show(d.claims[0].source);
+ out.append(el("p","muted","Mode: "+d.variant+" | retrieved "+d.sources.length+" chunks"))}
+</script></body></html>

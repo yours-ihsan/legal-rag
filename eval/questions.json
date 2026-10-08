@@ -1,0 +1,13 @@
+[
+ {"q": "Can a person apply for bail before being arrested?", "answerable": true, "gold_phrase": "may apply to the Regional Court for an order"},
+ {"q": "What conditions can the court impose on anticipatory release?", "answerable": true, "gold_phrase": "make himself available for interrogation"},
+ {"q": "What happens if investigation is not completed in sixty days?", "answerable": true, "gold_phrase": "sixty days of arrest"},
+ {"q": "When can bail be cancelled?", "answerable": true, "gold_phrase": "tampers with witnesses"},
+ {"q": "Is anticipatory release limited to a fixed period?", "answerable": true, "gold_phrase": "not restricted to a fixed period"},
+ {"q": "Must the police record reasons for arrest?", "answerable": true, "gold_phrase": "record reasons in writing"},
+ {"q": "Does a person have to be arrested first before approaching the court under Section 10?", "answerable": true, "gold_phrase": "need not first be arrested"},
+ {"q": "What is a written notice of appearance used for?", "answerable": true, "gold_phrase": "written notice of appearance"},
+ {"q": "What is the punishment for murder under the Demo Procedure Act?", "answerable": false, "gold_phrase": ""},
+ {"q": "How do I apply for a passport?", "answerable": false, "gold_phrase": ""},
+ {"q": "What did the Supreme Court of Demoland say about divorce?", "answerable": false, "gold_phrase": ""}
+]

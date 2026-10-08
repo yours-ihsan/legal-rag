@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pypdf
+rank_bm25
+scikit-learn
+numpy
+requests
+python-dotenv
+# optional, better semantic search (large download):
+# sentence-transformers
